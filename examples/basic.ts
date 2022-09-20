@@ -1,27 +1,26 @@
-// api/clip.ts
+// api/basic.ts
 import { route } from "../index";
 
-const { handler, get, post } = route("api/clip", {
-    ctx: async () => {
-    
-    // @ts-ignore
-    const Redis = (await import("@upstash/redis")).Redis;
+import type { Equal, Expect } from '@type-challenges/utils'
 
-    const redis = new Redis();
 
-    return { redis };
-  },
-  GET: async ({}, { ctx }) => {
-    return ctx.redis.get("clip") as Promise<string | undefined>;
-  },
-  POST: async ({ input }: { input: { text: string } }, { ctx }) => {
-    return ctx.redis.set("clip", input.text);
+const { handler, get, post } = route("api/basic", {
+  GET: async ({ input }: { input: { name: string } }) => {
+
+    return `Hello ${input.name}`;
   },
 });
 
 export const getClip = get;
 export const postClip = post;
 
-const temp = getClip()
+export const val = getClip({ name: "world" });
 
 export default handler;
+
+
+// Tests
+type cases = [
+  Expect<Equal<typeof val, Promise<string>>>,
+  Expect<Equal<typeof postClip, never>>,
+]

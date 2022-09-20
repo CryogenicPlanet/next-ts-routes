@@ -1,6 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@type-challenges/utils': ^0.1.1
   '@types/node': ^18.7.18
   '@types/react': ^18.0.20
   next: ^12.3.1
@@ -8,6 +9,7 @@ specifiers:
   typescript: ^4.8.3
 
 devDependencies:
+  '@type-challenges/utils': 0.1.1
   '@types/node': 18.7.18
   '@types/react': 18.0.20
   next: 12.3.1
@@ -182,6 +184,10 @@ packages:
     resolution: {integrity: sha512-rEUrBSGIoSFuYxwBYtlUFMlE2CwGhmW+w9355/5oduSw8e5h2+Tj4UrAGNNgP9915++wj5vkQo0UuOBqOAq4nw==}
     dependencies:
       tslib: 2.4.0
+    dev: true
+
+  /@type-challenges/utils/0.1.1:
+    resolution: {integrity: sha512-A7ljYfBM+FLw+NDyuYvGBJiCEV9c0lPWEAdzfOAkb3JFqfLl0Iv/WhWMMARHiRKlmmiD1g8gz/507yVvHdQUYA==}
     dev: true
 
   /@types/node/18.7.18:
