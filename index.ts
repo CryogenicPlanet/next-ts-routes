@@ -22,7 +22,7 @@ export const route = <
       }: {
         req: NextApiRequest;
         res: NextApiResponse;
-        ctx?: cR;
+        ctx: cR;
       }
     ) => Promise<gR>;
     POST?: (
@@ -34,14 +34,14 @@ export const route = <
       }: {
         req: NextApiRequest;
         res: NextApiResponse;
-        ctx?: cR;
+        ctx: cR;
       }
     ) => Promise<pR>;
     ctx?: () => Promise<cR>;
   }
 ) => {
   const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    const ctx = (route.ctx ? await route.ctx() : undefined) as cR | undefined;
+    const ctx = (route.ctx ? await route.ctx() : undefined) as cR;
 
     if (req.method === "GET") {
       if (!route.GET) {
