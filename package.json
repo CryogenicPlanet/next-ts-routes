@@ -1,0 +1,33 @@
+{
+  "devDependencies": {
+    "@types/node": "^18.7.18",
+    "@types/react": "^18.0.20",
+    "next": "^12.3.1"
+  },
+  "name": "next-ts-routes",
+  "description": "A way to have fully typed routes in next, without all the complexity of tRPC.",
+  "version": "0.1.0",
+  "main": "index.ts",
+  "dependencies": {},
+  "keywords": [
+	"next",
+	"typescript",
+	"routes",
+	"tRPC",
+	"typed routes",
+	"type safety"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CryogenicPlanet/typed-routes.git"
+  },
+  "author": "CryogenicPlanet",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CryogenicPlanet/typed-routes/issues"
+  },
+  "homepage": "https://github.com/CryogenicPlanet/typed-routes#readme"
+}
