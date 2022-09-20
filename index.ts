@@ -4,14 +4,19 @@ type Params = Partial<{
   [key: string]: string | string[];
 }>;
 
-type GetFunc<gT extends Params | undefined, gR = never> = gR extends never ? never : gT extends undefined ? () => Promise<gR> : (params: gT) => Promise<gR>;
-type PostFunc<pT extends Params | undefined, pR = never> = pR extends never ? never : pT extends undefined ? () => Promise<pR> : (params: pT) => Promise<pR>;
+type RouteFunc<T extends Params | undefined, R = never> = R extends never
+  ? never
+  : T extends undefined
+  ? () => Promise<R>
+  : (params: T) => Promise<R>;
 
 export const route = <
   gT extends Params | undefined = undefined,
   pT extends Params | undefined = undefined,
+  dT extends Params | undefined = undefined,
   gR = never,
   pR = never,
+  dR = never,
   cR = undefined
 >(
   url: string,
@@ -40,9 +45,15 @@ export const route = <
         ctx: cR;
       }
     ) => Promise<pR>;
+    DELETE?: (
+      { input }: { input: dT },
+      { req, res, ctx }: { req: NextApiRequest; res: NextApiResponse; ctx: cR }
+    ) => Promise<dR>;
     ctx?: () => Promise<cR>;
   }
 ) => {
+  const HOST = process.env.HOST || process.env.NEXT_PUBLIC_HOST;
+
   const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const ctx = (route.ctx ? await route.ctx() : undefined) as cR;
 
@@ -66,13 +77,22 @@ export const route = <
       const result = await route.POST({ input: req.body }, { req, res, ctx });
       res.status(200).json(result);
       return;
+    } else if (req.method === "DELETE") {
+      if (!route.DELETE) {
+        res.status(405).end();
+        return;
+      }
+      const result = await route.DELETE({ input: req.body }, { req, res, ctx });
+      res.status(200).json(result);
+      return;
     } else {
       res.status(405).json({ error: "Method not found" });
     }
   };
 
   const get = async (params: gT): Promise<gR> => {
-    const fetchUrl = new URL(url);
+    // If window is available get the host from the window, otherwise use the env variable HOST, otherwise default to localhost:3000
+    const fetchUrl = new URL(url, typeof window !== "undefined" ? window.location.hostname : HOST ?? "http://localhost:3000");
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (!value) return;
@@ -97,9 +117,20 @@ export const route = <
     }).then((res) => res.json());
   };
 
+  const del = async (params: dT): Promise<dR> => {
+    return fetch(url, {
+      method: "DELETE",
+      body: JSON.stringify(params),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res) => res.json());
+  };
+
   return {
     handler,
-    get: get as GetFunc<gT, gR>,
-    post: post as PostFunc<pT, pR>,
+    get: get as RouteFunc<gT, gR>,
+    post: post as RouteFunc<pT, pR>,
+    del: del as RouteFunc<dT, dR>,
   };
 };
