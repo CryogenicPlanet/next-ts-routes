@@ -22,4 +22,6 @@ const { handler, get, post } = route("api/clip", {
 export const getClip = get;
 export const postClip = post;
 
+const temp = getClip()
+
 export default handler;

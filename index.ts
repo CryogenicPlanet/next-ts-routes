@@ -4,9 +4,12 @@ type Params = Partial<{
   [key: string]: string | string[];
 }>;
 
+type GetFunc<gT extends Params | undefined, gR = never> = gR extends never ? never : gT extends undefined ? () => Promise<gR> : (params: gT) => Promise<gR>;
+type PostFunc<pT extends Params | undefined, pR = never> = pR extends never ? never : pT extends undefined ? () => Promise<pR> : (params: pT) => Promise<pR>;
+
 export const route = <
-  gT extends Params | undefined = never,
-  pT extends Params | undefined = never,
+  gT extends Params | undefined = undefined,
+  pT extends Params | undefined = undefined,
   gR = never,
   pR = never,
   cR = undefined
@@ -96,7 +99,7 @@ export const route = <
 
   return {
     handler,
-    get,
-    post,
+    get: get as GetFunc<gT, gR>,
+    post: post as PostFunc<pT, pR>,
   };
 };
