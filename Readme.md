@@ -20,6 +20,62 @@ pnpm install next-ts-routes
 
 This is an example of how to use `next-ts-routes`
 
+### Add the next wrapper
+
+```js
+// next.config.js
+const withNextTsRoutes = require('next-ts-routes/withNextTsRoutes')
+
+module.exports = withNextTsRoutes({})
+```
+<details>
+<summary>next.config.mjs</summary>
+
+```js
+// next.config.mjs
+import { env } from "./src/env/server.mjs";
+import { withNextTsRoutes } from 'next-ts-routes/withNextTsRoutes';
+
+/**
+ * Don't be scared of the generics here.
+ * All they do is to give us autocompletion when using this.
+ *
+ * @template {import('next').NextConfig} T
+ * @param {T} config - A generic parameter that flows through to the return type
+ * @constraint {{import('next').NextConfig}}
+ */
+function defineNextConfig(config) {
+  return withNextTsRoutes(config);
+}
+
+export default defineNextConfig({
+});
+
+```
+</details>
+
+<br>
+
+<details>
+<summary>Ignoring other server side only modules</summary>
+
+
+For the time being this is a hacky way to achieve this, will ideally fine a better way in the future.
+
+```js
+// next.config.js
+const withNextTsRoutes = require('next-ts-routes/withNextTsRoutes')
+
+module.exports = withNextTsRoutes({}, {
+  fs: false
+})
+```
+</details>
+
+---
+
+### Basic Usage
+
 You can see an example with typescript intellisense here - https://stackblitz.com/edit/typescript-qbv1tp?file=index.ts
 
 ```tsx
@@ -54,8 +110,6 @@ You should dynamically import them and then use them.
 
 Now you can import the `getClip` and `postClip` functions and use them in your app.
 
-
-**Basic usage**
 
 ```tsx
 // pages/index.tsx

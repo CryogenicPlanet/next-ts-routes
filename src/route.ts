@@ -55,44 +55,23 @@ export const route = <
   const HOST = process.env.HOST || process.env.NEXT_PUBLIC_HOST;
 
   const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    const ctx = (route.ctx ? await route.ctx() : undefined) as cR;
+    const handlerFunc = (await import("./handler")).handler;
 
-    if (req.method === "GET") {
-      if (!route.GET) {
-        res.status(405).end();
-        return;
-      }
-      const result = await route.GET(
-        // @ts-expect-error - Typescript is being a bit stupid here, where it is saying I can't assign something to "undefined"
-        { input: req.query },
-        { req, res, ctx }
-      );
-      res.status(200).json(result);
-      return;
-    } else if (req.method === "POST") {
-      if (!route.POST) {
-        res.status(405).end();
-        return;
-      }
-      const result = await route.POST({ input: req.body }, { req, res, ctx });
-      res.status(200).json(result);
-      return;
-    } else if (req.method === "DELETE") {
-      if (!route.DELETE) {
-        res.status(405).end();
-        return;
-      }
-      const result = await route.DELETE({ input: req.body }, { req, res, ctx });
-      res.status(200).json(result);
-      return;
-    } else {
-      res.status(405).json({ error: "Method not found" });
-    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //   @ts-expect-error
+    return handlerFunc(route, req, res);
   };
 
   const get = async (params: gT): Promise<gR> => {
     // If window is available get the host from the window, otherwise use the env variable HOST, otherwise default to localhost:3000
-    const fetchUrl = new URL(url, typeof window !== "undefined" ? window.location.hostname : HOST ?? "http://localhost:3000");
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : HOST ?? "http://localhost:3000";
+
+      console.log({baseUrl})
+      
+    const fetchUrl = new URL(url, baseUrl);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (!value) return;
