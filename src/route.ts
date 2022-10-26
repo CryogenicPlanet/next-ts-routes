@@ -1,15 +1,25 @@
 /* eslint-disable no-unused-vars */
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 type Params = Partial<{
-  [key: string]: string | string[];
-}>;
+  [key: string]: string | string[]
+}>
+
+const logger = (logLevel: 'verbose' | 'none' | undefined) => {
+  const log = (...args: any[]) => {
+    if (logLevel === 'verbose') {
+      console.log(...args)
+    }
+  }
+
+  return log
+}
 
 type RouteFunc<T extends Params | undefined, R = never> = R extends never
   ? never
   : T extends undefined
   ? () => Promise<R>
-  : (params: T) => Promise<R>;
+  : (params: T) => Promise<R>
 
 export const route = <
   gT extends Params | undefined = undefined,
@@ -27,95 +37,105 @@ export const route = <
       {
         req,
         res,
-        ctx,
+        ctx
       }: {
-        req: NextApiRequest;
-        res: NextApiResponse;
-        ctx: cR;
+        req: NextApiRequest
+        res: NextApiResponse
+        ctx: cR
       }
-    ) => Promise<gR>;
+    ) => Promise<gR>
     POST?: (
       { input }: { input: pT },
       {
         req,
         res,
-        ctx,
+        ctx
       }: {
-        req: NextApiRequest;
-        res: NextApiResponse;
-        ctx: cR;
+        req: NextApiRequest
+        res: NextApiResponse
+        ctx: cR
       }
-    ) => Promise<pR>;
+    ) => Promise<pR>
     DELETE?: (
       { input }: { input: dT },
       { req, res, ctx }: { req: NextApiRequest; res: NextApiResponse; ctx: cR }
-    ) => Promise<dR>;
-    ctx?: () => Promise<cR>;
-  }
+    ) => Promise<dR>
+    ctx?: () => Promise<cR>
+  },
+  options?: { logLevel?: 'none' | 'verbose' }
 ) => {
-  const HOST = process.env.HOST || process.env.NEXT_PUBLIC_HOST;
+  const log = logger(options?.logLevel)
+
+  const HOST = process.env.HOST || process.env.NEXT_PUBLIC_HOST
+
+  log('HOST', { HOST })
 
   // If window is available get the host from the window, otherwise use the env variable HOST, otherwise default to localhost:3000
   const getUrl = () => {
-    const baseUrl =
-      HOST ?? typeof window !== "undefined"
-        ? window.location.origin
-        : "http://localhost:3000";
+    const baseUrl = HOST || 'http://localhost:3000'
 
-    const url = new URL(relativeUrl, baseUrl);
-    return url;
-  };
+    const url = new URL(relativeUrl, baseUrl)
+    return url
+  }
 
   const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    const handlerFunc = (await import("./handler")).handler;
+    const handlerFunc = (await import('./handler')).handler
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //   @ts-expect-error
-    return handlerFunc(route, req, res);
-  };
+    return handlerFunc(route, req, res)
+  }
 
   const get = async (params: gT): Promise<gR> => {
-    const url = getUrl();
+    const url = getUrl()
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (!value) return;
+        if (!value) return
         if (Array.isArray(value)) {
-          url.searchParams.append(key, JSON.stringify(value));
+          url.searchParams.append(key, JSON.stringify(value))
         } else {
-          url.searchParams.append(key, value);
+          url.searchParams.append(key, value)
         }
-      });
+      })
     }
 
-    return fetch(url.toString()).then((res) => res.json());
-  };
+    log('Getting', url.toString())
+
+    return fetch(url.toString()).then((res) => res.json())
+  }
 
   const post = async (params: pT): Promise<pR> => {
-    const url = getUrl();
+    const url = getUrl()
+
+    log('Posting', url.toString())
+
     return fetch(url.toString(), {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(params),
       headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((res) => res.json());
-  };
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => res.json())
+  }
 
   const del = async (params: dT): Promise<dR> => {
-    const url = getUrl();
+    const url = getUrl()
+
+    log('Deleting', url.toString())
+
     return fetch(url.toString(), {
-      method: "DELETE",
+      method: 'DELETE',
       body: JSON.stringify(params),
       headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((res) => res.json());
-  };
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => res.json())
+  }
 
   return {
     handler,
     get: get as RouteFunc<gT, gR>,
     post: post as RouteFunc<pT, pR>,
-    del: del as RouteFunc<dT, dR>,
-  };
-};
+    del: del as RouteFunc<dT, dR>
+  }
+}
