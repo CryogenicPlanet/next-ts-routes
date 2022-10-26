@@ -54,6 +54,16 @@ export default defineNextConfig({
 ```
 </details>
 
+### Set HOST env variables
+
+You have to set `HOST` or `NEXT_PUBLIC_HOST` in your environment variables for `next-ts-routes` to work.
+
+
+```bash
+// .env.local
+HOST=http://localhost:3000
+```
+
 <br>
 
 <details>

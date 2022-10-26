@@ -1,41 +1,41 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from 'next'
 
-import { route } from "./route";
+import { route } from './route'
 
-type Route = Parameters<typeof route>[1];
-type CR<T extends Route> = T["ctx"] extends undefined
+type Route = Parameters<typeof route>[1]
+type CR<T extends Route> = T['ctx'] extends undefined
   ? never
-  : ReturnType<NonNullable<T["ctx"]>>;
+  : ReturnType<NonNullable<T['ctx']>>
 
 export const handler = async <T extends Route>(
   route: T,
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
-  const ctx = (route.ctx ? await route.ctx() : undefined) as CR<T>;
+  const ctx = (route.ctx ? await route.ctx() : undefined) as CR<T>
 
-  if (req.method === "GET") {
+  if (req.method === 'GET') {
     if (!route.GET) {
-      res.status(405).end();
-      return;
+      res.status(405).end()
+      return
     }
-    const result = await route.GET({ input: req.query }, { req, res, ctx });
-    res.status(200).json(result);
-  } else if (req.method === "POST") {
+    const result = await route.GET({ input: req.query }, { req, res, ctx })
+    res.status(200).json(result)
+  } else if (req.method === 'POST') {
     if (!route.POST) {
-      res.status(405).end();
-      return;
+      res.status(405).end()
+      return
     }
-    const result = await route.POST({ input: req.body }, { req, res, ctx });
-    res.status(200).json(result);
-  } else if (req.method === "DELETE") {
+    const result = await route.POST({ input: req.body }, { req, res, ctx })
+    res.status(200).json(result)
+  } else if (req.method === 'DELETE') {
     if (!route.DELETE) {
-      res.status(405).end();
-      return;
+      res.status(405).end()
+      return
     }
-    const result = await route.DELETE({ input: req.body }, { req, res, ctx });
-    res.status(200).json(result);
+    const result = await route.DELETE({ input: req.body }, { req, res, ctx })
+    res.status(200).json(result)
   } else {
-    res.status(405).json({ error: "Method not found" });
+    res.status(405).json({ error: 'Method not found' })
   }
-};
+}

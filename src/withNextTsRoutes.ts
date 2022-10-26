@@ -1,4 +1,4 @@
-import { NextConfig } from "next";
+import { NextConfig } from 'next'
 
 export const withNextTsRoutes = (
   nextConfig: NextConfig = {},
@@ -7,9 +7,18 @@ export const withNextTsRoutes = (
   return {
     ...nextConfig,
     webpack: (defaultConfig, options) => {
+      if (
+        process.env.HOST === undefined &&
+        process.env.NEXT_PUBLIC_HOST === undefined
+      ) {
+        throw new Error(
+          'You must set the HOST or NEXT_PUBLIC_HOST environment variable.'
+        )
+      }
+
       const config = nextConfig.webpack
         ? nextConfig.webpack(defaultConfig, options)
-        : defaultConfig;
+        : defaultConfig
 
       config.resolve.fallback = {
         assert: false,
@@ -38,10 +47,10 @@ export const withNextTsRoutes = (
         fs: false,
         tls: false,
         net: false,
-        ...fallbackFalse,
-      };
+        ...fallbackFalse
+      }
 
-      return config;
-    },
-  };
-};
+      return config
+    }
+  }
+}
