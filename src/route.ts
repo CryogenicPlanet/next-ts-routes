@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Params = Partial<{
@@ -19,7 +20,7 @@ export const route = <
   dR = never,
   cR = undefined
 >(
-  url: string,
+  relativeUrl: string,
   route: {
     GET?: (
       { input }: { input: gT },
@@ -54,6 +55,17 @@ export const route = <
 ) => {
   const HOST = process.env.HOST || process.env.NEXT_PUBLIC_HOST;
 
+  // If window is available get the host from the window, otherwise use the env variable HOST, otherwise default to localhost:3000
+  const getUrl = () => {
+    const baseUrl =
+      HOST ?? typeof window !== "undefined"
+        ? window.location.origin
+        : "http://localhost:3000";
+
+    const url = new URL(relativeUrl, baseUrl);
+    return url;
+  };
+
   const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const handlerFunc = (await import("./handler")).handler;
 
@@ -63,31 +75,24 @@ export const route = <
   };
 
   const get = async (params: gT): Promise<gR> => {
-    // If window is available get the host from the window, otherwise use the env variable HOST, otherwise default to localhost:3000
-    const baseUrl =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : HOST ?? "http://localhost:3000";
-
-      console.log({baseUrl})
-      
-    const fetchUrl = new URL(url, baseUrl);
+    const url = getUrl();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (!value) return;
         if (Array.isArray(value)) {
-          fetchUrl.searchParams.append(key, JSON.stringify(value));
+          url.searchParams.append(key, JSON.stringify(value));
         } else {
-          fetchUrl.searchParams.append(key, value);
+          url.searchParams.append(key, value);
         }
       });
     }
 
-    return fetch(fetchUrl.toString()).then((res) => res.json());
+    return fetch(url.toString()).then((res) => res.json());
   };
 
   const post = async (params: pT): Promise<pR> => {
-    return fetch(url, {
+    const url = getUrl();
+    return fetch(url.toString(), {
       method: "POST",
       body: JSON.stringify(params),
       headers: {
@@ -97,7 +102,8 @@ export const route = <
   };
 
   const del = async (params: dT): Promise<dR> => {
-    return fetch(url, {
+    const url = getUrl();
+    return fetch(url.toString(), {
       method: "DELETE",
       body: JSON.stringify(params),
       headers: {

@@ -1,7 +1,7 @@
 // api/methods.ts
-import { route } from "../index";
-
 import type { Equal, Expect } from "@type-challenges/utils";
+
+import { route } from "../src";
 
 const { handler, get, post, del } = route("api/methods", {
   GET: async ({ input }: { input: { name: string } }) => {
@@ -23,6 +23,7 @@ export const val = getClip({ name: "world" });
 export default handler;
 
 // Tests
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 type cases = [
   Expect<Equal<typeof val, Promise<string>>>,
   Expect<Equal<Parameters<typeof postClip>, [{ postName: string }]>>,

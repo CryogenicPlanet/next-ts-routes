@@ -1,3 +1,2 @@
-export * from './route'
-
-export * from './withNextTsRoutes'
+export * from "./route";
+export * from "./withNextTsRoutes";
